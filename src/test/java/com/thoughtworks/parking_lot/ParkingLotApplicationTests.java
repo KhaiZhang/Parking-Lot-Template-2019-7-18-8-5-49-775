@@ -17,8 +17,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -56,4 +55,25 @@ public class ParkingLotApplicationTests {
                 .andDo(print())
                 .andExpect(content().string("delete scuessfully"));
     }
+
+    @Test
+    public void should_return_parkinglots() throws Exception{
+        int size = parkingLotRepository.findAll().size();
+        mockMvc.perform(get("/parkinglots"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(size));
+    }
+
+    @Test
+    public void should_return_parkinglots_by_page() throws Exception{
+        int size = parkingLotRepository.findAll().size();
+        int result=15;
+        if(size<15) result = size;
+        mockMvc.perform(get("/parkinglots?page={page}",1))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(result));
+    }
+
 }
