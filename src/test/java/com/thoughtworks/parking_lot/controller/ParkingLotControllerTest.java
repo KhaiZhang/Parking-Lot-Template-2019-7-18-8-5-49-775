@@ -1,18 +1,98 @@
 package com.thoughtworks.parking_lot.controller;
 
-import org.junit.jupiter.api.Test;
+import com.google.gson.Gson;
+import com.thoughtworks.parking_lot.model.ParkingLot;
+import com.thoughtworks.parking_lot.repository.ParkingLotRepository;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
-@DataJpaTest
+@SpringBootTest
+@AutoConfigureMockMvc
 public class ParkingLotControllerTest {
 
 
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ParkingLotRepository parkingLotRepository;
+
+    @org.junit.Test
+    public void should_sava_a_new_parkinglot() throws Exception{
+        Gson gson = new Gson();
+        String name = UUID.randomUUID().toString();
+        ParkingLot parkingLot = new ParkingLot(name, 10, "where");
+
+        mockMvc.perform(post("/parkinglots").contentType(MediaType.APPLICATION_JSON).content(gson.toJson(parkingLot)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(name));
+    }
+
+    @org.junit.Test
+    public void should_delete_a_parkinglot() throws Exception{
+        Gson gson = new Gson();
+        String name = UUID.randomUUID().toString();
+        ParkingLot parkingLot = new ParkingLot(name, 12, "where12");
+        ParkingLot save = parkingLotRepository.save(parkingLot);
+        long id = save.getId();
+        mockMvc.perform(delete("/parkinglots/{id}",id))
+                .andDo(print())
+                .andExpect(content().string("delete scuessfully"));
+    }
+
+    @org.junit.Test
+    public void should_return_parkinglots() throws Exception{
+        int size = parkingLotRepository.findAll().size();
+        mockMvc.perform(get("/parkinglots"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(size));
+    }
+
+    @org.junit.Test
+    public void should_return_parkinglots_by_page() throws Exception{
+        int size = parkingLotRepository.findAll().size();
+        int result=15;
+        if(size<15) result = size;
+        mockMvc.perform(get("/parkinglots?page={page}",1))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(result));
+    }
+
+    @org.junit.Test
+    public void should_return_parkinglot_by_id() throws Exception{
+        ParkingLot parkingLot = parkingLotRepository.findAll().get(0);
+        mockMvc.perform(get("/parkinglots/{id}",parkingLot.getId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(parkingLot.getName()));
+    }
+
     @Test
-    public void createParkinglot() {
+    public void should_update_parkinglot_capacity() throws Exception{
+        Gson gson = new Gson();
+        ParkingLot parkingLot = parkingLotRepository.findAll().get(0);
+        parkingLot.setCapacity(90);
+        mockMvc.perform(post("/parkinglots").contentType(MediaType.APPLICATION_JSON).content(gson.toJson(parkingLot)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.capacity").value(90));
     }
 }
