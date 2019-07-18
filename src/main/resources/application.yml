@@ -1,0 +1,16 @@
+spring :
+  datasource :
+    url : jdbc:h2:file:./h2
+    username : sa
+    password :
+      driverClassName : org.h2.Driver
+      platform : h2
+  jpa :
+    hibernate :
+      ddl_auto : update
+  h2 :
+    console:
+      enabled : true
+
+server :
+  port : 8090
