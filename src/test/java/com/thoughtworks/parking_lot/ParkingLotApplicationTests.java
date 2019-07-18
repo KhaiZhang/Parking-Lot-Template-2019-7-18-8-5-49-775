@@ -76,4 +76,12 @@ public class ParkingLotApplicationTests {
                 .andExpect(jsonPath("$.length()").value(result));
     }
 
+    @Test
+    public void should_return_parkinglot_by_id() throws Exception{
+        ParkingLot parkingLot = parkingLotRepository.findAll().get(0);
+        mockMvc.perform(get("/parkinglots/{id}",parkingLot.getId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(parkingLot.getName()));
+    }
 }

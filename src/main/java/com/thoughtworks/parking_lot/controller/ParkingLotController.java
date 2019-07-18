@@ -37,4 +37,9 @@ public class ParkingLotController {
             return ResponseEntity.ok(parkingLotRepository.findAll(PageRequest.of(page-1,15)).getContent());
         }
     }
+
+    @GetMapping("/parkinglots/{id}")
+    public ResponseEntity<ParkingLot> getParkinglotById(@PathVariable(value = "id") long id){
+        return ResponseEntity.ok(parkingLotRepository.findById(id).get());
+    }
 }
