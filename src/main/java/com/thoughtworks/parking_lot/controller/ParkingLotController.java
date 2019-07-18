@@ -42,4 +42,9 @@ public class ParkingLotController {
     public ResponseEntity<ParkingLot> getParkinglotById(@PathVariable(value = "id") long id){
         return ResponseEntity.ok(parkingLotRepository.findById(id).get());
     }
+
+    @PutMapping("/parkinglots")
+    public ResponseEntity<Integer> updateCapacityById(@RequestBody ParkingLot parkingLot){
+        return ResponseEntity.ok(parkingLotRepository.updateCapacityById(parkingLot));
+    }
 }

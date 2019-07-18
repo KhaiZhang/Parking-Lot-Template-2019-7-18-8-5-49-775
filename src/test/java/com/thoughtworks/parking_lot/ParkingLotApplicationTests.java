@@ -84,4 +84,15 @@ public class ParkingLotApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(parkingLot.getName()));
     }
+
+    @Test
+    public void should_update_parkinglot_capacity() throws Exception{
+        Gson gson = new Gson();
+        ParkingLot parkingLot = parkingLotRepository.findAll().get(0);
+        parkingLot.setCapacity(90);
+        mockMvc.perform(post("/parkinglots").contentType(MediaType.APPLICATION_JSON).content(gson.toJson(parkingLot)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.capacity").value(90));
+    }
 }
