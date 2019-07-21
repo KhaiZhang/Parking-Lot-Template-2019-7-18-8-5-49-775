@@ -40,7 +40,7 @@ public class ParkingLotController {
 
     @GetMapping("/parkinglots/{id}")
     public ResponseEntity<ParkingLot> getParkinglotById(@PathVariable(value = "id") long id){
-        return ResponseEntity.ok(parkingLotRepository.findById(id).get());
+        return ResponseEntity.ok(parkingLotRepository.findById(id).orElse(null));
     }
 
     @PutMapping("/parkinglots")
