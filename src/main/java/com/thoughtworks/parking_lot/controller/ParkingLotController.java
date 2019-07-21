@@ -1,8 +1,11 @@
 package com.thoughtworks.parking_lot.controller;
 
 
+import com.thoughtworks.parking_lot.Exception.ParkingLotIsFullException;
 import com.thoughtworks.parking_lot.model.ParkingLot;
+import com.thoughtworks.parking_lot.model.ParkingOrder;
 import com.thoughtworks.parking_lot.repository.ParkingLotRepository;
+import com.thoughtworks.parking_lot.service.ParkingLotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,10 @@ public class ParkingLotController {
 
     @Autowired
     private ParkingLotRepository parkingLotRepository;
+
+    @Autowired
+    private ParkingLotService parkingLotService;
+
     @PostMapping("/parkinglots")
     public ResponseEntity<ParkingLot> createParkinglot(@RequestBody ParkingLot parkingLot){
         ParkingLot newParkingLot = parkingLotRepository.save(parkingLot);
@@ -46,5 +53,17 @@ public class ParkingLotController {
     @PutMapping("/parkinglots")
     public ResponseEntity<Integer> updateCapacityById(@RequestBody ParkingLot parkingLot){
         return ResponseEntity.ok(parkingLotRepository.updateCapacityById(parkingLot));
+    }
+
+    @PostMapping("/parkinglots/{id}/parkingOrders")
+    public ResponseEntity<ParkingOrder> createNewOrder(@PathVariable(value = "id") long id,@RequestBody ParkingOrder parkingOrder) throws ParkingLotIsFullException{
+        ParkingOrder newParkingOrder = parkingLotService.addNewPakringOrderById(id,parkingOrder);
+        if(newParkingOrder == null ) throw new ParkingLotIsFullException("parking lot is full");
+        else return ResponseEntity.ok(newParkingOrder);
+    }
+
+    @ExceptionHandler(ParkingLotIsFullException.class)
+    public String returnParkingLotIsFull(ParkingLotIsFullException ex){
+        return "'error':"+ex.getMessage();
     }
 }

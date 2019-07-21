@@ -6,11 +6,16 @@ spring :
       driverClassName : org.h2.Driver
       platform : h2
   jpa :
+    show-sql : true
     hibernate :
-      ddl_auto : update
+      ddl_auto : none
   h2 :
     console:
       enabled : true
-
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
 server :
   port : 8090

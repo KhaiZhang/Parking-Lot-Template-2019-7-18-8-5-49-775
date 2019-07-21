@@ -16,4 +16,6 @@ public interface ParkingLotRepository extends JpaRepository<ParkingLot,Long> {
     @Transactional
     @Query("update ParkingLot set capacity = :#{#parkinglot.capacity} where id = :#{#parkinglot.id}")
     public int updateCapacityById(@Param(value = "parkinglot")ParkingLot parkinglot);
+
+
 }

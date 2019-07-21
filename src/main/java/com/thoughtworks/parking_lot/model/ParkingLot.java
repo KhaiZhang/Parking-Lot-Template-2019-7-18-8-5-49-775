@@ -1,9 +1,7 @@
 package com.thoughtworks.parking_lot.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class ParkingLot {
@@ -17,6 +15,9 @@ public class ParkingLot {
     private int capacity;
 
     private String location;
+
+    @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<ParkingOrder> parkingOrders;
 
     public ParkingLot(String name, int capacity, String location) {
         this.name = name;
@@ -57,5 +58,13 @@ public class ParkingLot {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public List<ParkingOrder> getParkingOrders() {
+        return parkingOrders;
+    }
+
+    public void setParkingOrders(List<ParkingOrder> parkingOrders) {
+        this.parkingOrders = parkingOrders;
     }
 }

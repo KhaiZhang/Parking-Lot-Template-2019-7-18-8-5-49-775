@@ -2,7 +2,10 @@ package com.thoughtworks.parking_lot.controller;
 
 import com.google.gson.Gson;
 import com.thoughtworks.parking_lot.model.ParkingLot;
+import com.thoughtworks.parking_lot.model.ParkingOrder;
 import com.thoughtworks.parking_lot.repository.ParkingLotRepository;
+import com.thoughtworks.parking_lot.service.ParkingLotService;
+import org.hibernate.criterion.Order;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
@@ -19,7 +22,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,6 +46,9 @@ public class ParkingLotControllerTest {
 
     @MockBean
     private ParkingLotRepository parkingLotRepository;
+
+    @MockBean
+    private ParkingLotService parkingLotService;
 
     @org.junit.Test
     public void should_sava_a_new_parkinglot() throws Exception{
@@ -109,5 +117,35 @@ public class ParkingLotControllerTest {
         mockMvc.perform(post("/parkinglots").contentType(MediaType.APPLICATION_JSON).content(gson.toJson(parkingLot)))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void should_create_new_Order()  throws Exception{
+        ParkingLot parkingLot = new ParkingLot("1k", 10, "where");
+        parkingLot.setId(10);
+        parkingLot.setParkingOrders(null);
+        String date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+        ParkingOrder parkingOrder = new ParkingOrder("1k", "C:123", date, 1, parkingLot);
+        when(parkingLotService.addNewPakringOrderById(anyLong(),any(ParkingOrder.class))).thenReturn(parkingOrder);
+
+        mockMvc.perform(post("/parkinglots/{id}/parkingOrders",parkingLot.getId()).contentType(MediaType.APPLICATION_JSON).content(new Gson().toJson(parkingOrder)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.parkingLotName").value(parkingOrder.getParkingLotName()));
+    }
+
+    @Test
+    public void should_return_error_parkinglot_is_full()  throws Exception{
+        ParkingLot parkingLot = new ParkingLot("1k", 10, "where");
+        parkingLot.setId(10);
+        parkingLot.setParkingOrders(null);
+        String date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+        ParkingOrder parkingOrder = new ParkingOrder("1k", "C:123", date, 1, parkingLot);
+        when(parkingLotService.addNewPakringOrderById(anyLong(),any(ParkingOrder.class))).thenReturn(null);
+
+        mockMvc.perform(post("/parkinglots/{id}/parkingOrders",parkingLot.getId()).contentType(MediaType.APPLICATION_JSON).content(new Gson().toJson(parkingOrder)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string("'error':parking lot is full"));
     }
 }
