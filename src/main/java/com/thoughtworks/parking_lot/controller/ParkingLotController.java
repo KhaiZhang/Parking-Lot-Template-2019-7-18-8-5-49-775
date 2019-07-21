@@ -66,4 +66,10 @@ public class ParkingLotController {
     public String returnParkingLotIsFull(ParkingLotIsFullException ex){
         return "'error':"+ex.getMessage();
     }
+
+    @PutMapping("/parkinglots/{id}/parkingOrders")
+    public ResponseEntity<ParkingOrder> updateOrder(@PathVariable(value = "id") long id,@RequestParam(value = "carNumber") String carNumber) throws ParkingLotIsFullException{
+        ParkingOrder newParkingOrder = parkingLotService.updateOrderByCarNumber(id,carNumber);
+        return ResponseEntity.ok(newParkingOrder);
+    }
 }

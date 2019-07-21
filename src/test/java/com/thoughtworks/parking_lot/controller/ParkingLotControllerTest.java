@@ -28,8 +28,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -147,5 +146,22 @@ public class ParkingLotControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("'error':parking lot is full"));
+    }
+
+    @Test
+    public void should_update_order_when_fetch_car()  throws Exception{
+        ParkingLot parkingLot = new ParkingLot("1k", 10, "where");
+        parkingLot.setId(10);
+        parkingLot.setParkingOrders(null);
+        String date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+        ParkingOrder parkingOrder = new ParkingOrder("1k", "D:1112", date, 0, parkingLot);
+        parkingOrder.setEndingTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+        when(parkingLotService.updateOrderByCarNumber(anyLong(),anyString())).thenReturn(parkingOrder);
+
+        mockMvc.perform(put("/parkinglots/{id}/parkingOrders",parkingLot.getId()).param("carNumber","D:1112"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(0))
+                .andExpect(jsonPath("$.endingTime").exists());
     }
 }

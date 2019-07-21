@@ -48,4 +48,21 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         }
         else return null;
     }
+
+    @Override
+    public ParkingOrder updateOrderByCarNumber(long id, String carNumber) {
+        ParkingLot parkingLot = parkingLotRepository.findAll()
+                .stream()
+                .filter(element -> element.getId() == id)
+                .findAny()
+                .orElse(null);
+        ParkingOrder parkingOrder = parkingLot.getParkingOrders()
+                .stream()
+                .filter(element -> carNumber.equals(element.getCarNumber()))
+                .findAny()
+                .orElse(null);
+        parkingOrder.setEndingTime(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()));
+        parkingOrder.setStatus(0);
+        return parkingOrder;
+    }
 }

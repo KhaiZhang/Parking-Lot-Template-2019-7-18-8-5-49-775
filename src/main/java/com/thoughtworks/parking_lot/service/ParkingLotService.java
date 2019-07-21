@@ -4,4 +4,6 @@ import com.thoughtworks.parking_lot.model.ParkingOrder;
 
 public interface ParkingLotService {
     public ParkingOrder addNewPakringOrderById(long id,ParkingOrder parkingOrder);
+
+    public ParkingOrder updateOrderByCarNumber(long id , String carNumber);
 }
